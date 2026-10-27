@@ -1,0 +1,166 @@
+[
+  {
+    "scenario": "Session expiry",
+    "outcome": "Expired session refreshed; exactly one order accepted.",
+    "submissions": 1,
+    "events": [
+      {
+        "time": 1000.0,
+        "event": "INTENT_PERSISTED",
+        "client_id": "demo-1"
+      },
+      {
+        "time": 1000.0,
+        "event": "ORDER_RECONCILED",
+        "client_id": "demo-1",
+        "status": "ACCEPTED",
+        "filled": 0
+      }
+    ]
+  },
+  {
+    "scenario": "Stale market data",
+    "outcome": "100-second-old quote blocked before submission.",
+    "submissions": 0,
+    "events": [
+      {
+        "time": 1000.0,
+        "event": "QUOTE_BLOCKED",
+        "age": 100.0
+      }
+    ]
+  },
+  {
+    "scenario": "Lost acknowledgement + restart",
+    "outcome": "New engine instance recovered persisted intent; no duplicate submission.",
+    "submissions": 1,
+    "events": [
+      {
+        "time": 1000.0,
+        "event": "INTENT_PERSISTED",
+        "client_id": "demo-1"
+      },
+      {
+        "time": 1000.0,
+        "event": "ACK_UNKNOWN",
+        "client_id": "demo-1",
+        "reason": "TimeoutError"
+      },
+      {
+        "time": 1000.0,
+        "event": "REPLAY_RECONCILE",
+        "client_id": "demo-1"
+      },
+      {
+        "time": 1000.0,
+        "event": "ORDER_RECONCILED",
+        "client_id": "demo-1",
+        "status": "ACCEPTED",
+        "filled": 0
+      }
+    ]
+  },
+  {
+    "scenario": "Partial fills",
+    "outcome": "Repeated partial-fill observation counted once; final position reconciles to 4.",
+    "submissions": 1,
+    "events": [
+      {
+        "time": 1000.0,
+        "event": "INTENT_PERSISTED",
+        "client_id": "demo-1"
+      },
+      {
+        "time": 1000.0,
+        "event": "ORDER_RECONCILED",
+        "client_id": "demo-1",
+        "status": "ACCEPTED",
+        "filled": 0
+      },
+      {
+        "time": 1000.0,
+        "event": "ORDER_RECONCILED",
+        "client_id": "demo-1",
+        "status": "PARTIAL",
+        "filled": 2
+      },
+      {
+        "time": 1000.0,
+        "event": "ORDER_RECONCILED",
+        "client_id": "demo-1",
+        "status": "PARTIAL",
+        "filled": 2
+      },
+      {
+        "time": 1000.0,
+        "event": "ORDER_RECONCILED",
+        "client_id": "demo-1",
+        "status": "FILLED",
+        "filled": 4
+      }
+    ]
+  },
+  {
+    "scenario": "Position mismatch",
+    "outcome": "Broker position 5 versus ledger 4; next order blocked.",
+    "submissions": 1,
+    "events": [
+      {
+        "time": 1000.0,
+        "event": "INTENT_PERSISTED",
+        "client_id": "demo-1"
+      },
+      {
+        "time": 1000.0,
+        "event": "ORDER_RECONCILED",
+        "client_id": "demo-1",
+        "status": "ACCEPTED",
+        "filled": 0
+      },
+      {
+        "time": 1000.0,
+        "event": "ORDER_RECONCILED",
+        "client_id": "demo-1",
+        "status": "FILLED",
+        "filled": 4
+      },
+      {
+        "time": 1000.0,
+        "event": "POSITION_MISMATCH",
+        "expected": 4,
+        "observed": 5
+      }
+    ]
+  },
+  {
+    "scenario": "Broker rejection",
+    "outcome": "Rejected order remains rejected; replay does not resubmit.",
+    "submissions": 1,
+    "events": [
+      {
+        "time": 1000.0,
+        "event": "INTENT_PERSISTED",
+        "client_id": "demo-1"
+      },
+      {
+        "time": 1000.0,
+        "event": "ORDER_RECONCILED",
+        "client_id": "demo-1",
+        "status": "REJECTED",
+        "filled": 0
+      },
+      {
+        "time": 1000.0,
+        "event": "REPLAY_RECONCILE",
+        "client_id": "demo-1"
+      },
+      {
+        "time": 1000.0,
+        "event": "ORDER_RECONCILED",
+        "client_id": "demo-1",
+        "status": "REJECTED",
+        "filled": 0
+      }
+    ]
+  }
+]
